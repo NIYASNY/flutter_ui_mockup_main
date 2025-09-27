@@ -1,0 +1,67 @@
+[
+  {
+    "id": "1",
+    "name": "Swedish Massage",
+    "address": "Renew Day Spa",
+    "category": "Massage",
+    "rating": 4.5,
+    "distance": "3.5 km",
+    "offer": "Flat 10% Off above value of 200",
+    "image": "assets/spa1.jpg",
+    "price": 4000,
+    "time": "60 Mins",
+    "type": "Walk-in"
+  },
+  {
+    "id": "2",
+    "name": "Deep Tissue Massage",
+    "address": "Mystical Mantra Spa",
+    "category": "Massage",
+    "rating": 4.4,
+    "distance": "3.2 km",
+    "offer": "",
+    "image": "assets/spa2.jpeg",
+    "price": 6200,
+    "time": "60 Mins",
+    "type": "Walk-in"
+  },
+  {
+    "id": "3",
+    "name": "Hot Stone Massage",
+    "address": "Bodhi Retreat Spa",
+    "category": "Massage",
+    "rating": 4.6,
+    "distance": "4.1 km",
+    "offer": "Flat 10% Off above value of 200",
+    "image": "assets/spa3.jpeg",
+    "price": 8500,
+    "time": "60 Mins",
+    "type": "Home visit"
+  },
+  {
+    "id": "4",
+    "name": "Swedish Massage",
+    "address": "Renew Day Spa",
+    "category": "Massage",
+    "rating": 4.5,
+    "distance": "3.5 km",
+    "offer": "Flat 10% Off above value of 200",
+    "image": "assets/spa1.jpg",
+    "price": 4000,
+    "time": "60 Mins",
+    "type": "Walk-in"
+  },
+  {
+    "id": "5",
+    "name": "Deep Tissue Massage",
+    "address": "Mystical Mantra Spa",
+    "category": "Massage",
+    "rating": 4.4,
+    "distance": "3.2 km",
+    "offer": "",
+    "image": "assets/spa2.jpeg",
+    "price": 6200,
+    "time": "60 Mins",
+    "type": "Walk-in"
+  }
+]

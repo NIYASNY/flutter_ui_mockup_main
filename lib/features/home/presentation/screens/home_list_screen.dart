@@ -1,53 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../bloc/favourite/favourite_bloc.dart';
-import '../bloc/favourite/favourite_event.dart';
+import '../../data/providers/cart_provider.dart';
+import '../../data/providers/favourite_provider.dart';
+import '../../domain/models/product.dart';
+import '../../data/providers/product_provider.dart';
 
-class HomeListScreen extends StatelessWidget {
+
+class HomeListScreen extends ConsumerWidget {
   const HomeListScreen({super.key});
 
-  final List<Map<String, dynamic>> spas = const [
-    {
-      "name": "Renew Day Spa",
-      "address": "120B, Spinne Arcade, Flat No 102",
-      "category": "Unisex",
-      "rating": 4.5,
-      "distance": "3.5 km",
-      "offer": "Flat 10% Off above value of 200",
-      "image": "assets/spa1.jpg",
-    },
-    {
-      "name": "Mystical Mantra Spa",
-      "address": "120B, Spinne Arcade, Flat No 102",
-      "category": "Male",
-      "rating": 4.5,
-      "distance": "3.5 km",
-      "offer": "",
-      "image": "assets/spa2.jpeg",
-    },
-    {
-      "name": "Bodhi Retreat Spa",
-      "address": "120B, Spinne Arcade, Flat No 102",
-      "category": "Female",
-      "rating": 4.5,
-      "distance": "3.5 km",
-      "offer": "Flat 10% Off above value of 200",
-      "image": "assets/spa3.jpeg",
-    },
-    {
-      "name": "Eternal Bliss Ayurvedic",
-      "address": "120B, Spinne Arcade, Flat No 102",
-      "category": "Female",
-      "rating": 4.5,
-      "distance": "3.5 km",
-      "offer": "",
-      "image": "assets/spa4.jpg",
-    },
-  ];
-
-  void _showTopSnackBar(BuildContext context, String message, Color bgColor,
-      {bool navigate = false}) {
+  void _showTopSnackBar(
+    BuildContext context,
+    String message,
+    Color bgColor, {
+    bool navigate = false,
+  }) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
     final snackBar = SnackBar(
@@ -72,21 +40,27 @@ class HomeListScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final productsAsync = ref.watch(productsFutureProvider);
+    final favorites = ref.watch(favoriteProvider);
+    final cart = ref.watch(cartProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F1E8),
       body: SafeArea(
         child: Column(
           children: [
-            //TOP BAR
+            // ---------------- TOP BAR ----------------
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(30),
@@ -106,24 +80,54 @@ class HomeListScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.notifications_none,
-                      color: Colors.brown,
+
+                  // Cart icon with badge
+                  GestureDetector(
+                    onTap: () => context.push('/cart'),
+                    child: Stack(
+                      alignment: Alignment.topRight,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.shopping_cart_outlined,
+                            color: Colors.brown,
+                          ),
+                        ),
+                        if (cart.isNotEmpty)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '${ref.watch(cartProvider.notifier).totalItems}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
 
-            //SEARCH BAR
+            // ---------------- SEARCH BAR ----------------
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
@@ -140,11 +144,13 @@ class HomeListScreen extends StatelessWidget {
               ),
             ),
 
-            //SPA LIST
             const SizedBox(height: 15),
+
+            // ---------------- PRODUCT LIST ----------------
             Expanded(
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
                 child: Container(
                   width: double.infinity,
                   decoration: const BoxDecoration(
@@ -152,47 +158,51 @@ class HomeListScreen extends StatelessWidget {
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(20)),
                   ),
-                  child: BlocBuilder<FavoriteBloc, FavoriteState>(
-                    builder: (context, state) {
+                  child: productsAsync.when(
+                    data: (products) {
                       return ListView.builder(
                         padding: const EdgeInsets.only(top: 12),
-                        itemCount: spas.length,
+                        itemCount: products.length,
                         itemBuilder: (context, index) {
-                          final spa = spas[index];
-                          final isFavorite =
-                              state.favoriteIndices.contains(index);
-                
+                          final Product p = products[index];
+                          final isFavorite = favorites.contains(p.id);
+
                           return GestureDetector(
-                            onTap: () {
-                              context.push('/store-profile', extra: spa);
-                            },
+                            onTap: () =>
+                                context.push('/store-profile', extra: p.toJson()),
                             child: Container(
                               margin: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                    color: Colors.grey.shade300, width: 1),
+                                  color: Colors.grey.shade300,
+                                  width: 1,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
+                                      // Image
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(12),
                                         child: Image.asset(
-                                          spa["image"],
+                                          p.image,
                                           width: 90,
                                           height: 100,
                                           fit: BoxFit.cover,
                                         ),
                                       ),
                                       const SizedBox(width: 12),
-                
-                                      //DETAILS
+
+                                      // Details
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
@@ -200,42 +210,48 @@ class HomeListScreen extends StatelessWidget {
                                           children: [
                                             Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Expanded(
                                                   child: Text(
-                                                    spa["name"],
+                                                    p.name,
                                                     style: const TextStyle(
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                 ),
                                                 GestureDetector(
                                                   onTap: () {
-                                                    context
-                                                        .read<FavoriteBloc>()
-                                                        .add(ToggleFavorite(index));
-                
+                                                    final notifier = ref.read(
+                                                        favoriteProvider
+                                                            .notifier);
+                                                    final set = Set<String>.from(
+                                                        notifier.state);
                                                     if (isFavorite) {
-                                                      _showTopSnackBar(
-                                                        context,
-                                                        "Removed from cart",
-                                                        Colors.redAccent,
-                                                      );
+                                                      set.remove(p.id);
                                                     } else {
-                                                      _showTopSnackBar(
-                                                        context,
-                                                        "Card added successfully",
-                                                        Colors.green,
-                                                        navigate: true,
-                                                      );
+                                                      set.add(p.id);
                                                     }
+                                                    notifier.state = set;
+
+                                                    _showTopSnackBar(
+                                                      context,
+                                                      isFavorite
+                                                          ? 'Removed from favorites'
+                                                          : 'Added to favorites',
+                                                      isFavorite
+                                                          ? Colors.redAccent
+                                                          : Colors.green,
+                                                    );
                                                   },
                                                   child: Icon(
                                                     isFavorite
                                                         ? Icons.favorite
-                                                        : Icons.favorite_border,
+                                                        : Icons
+                                                            .favorite_border,
                                                     color: isFavorite
                                                         ? Colors.red
                                                         : Colors.brown,
@@ -245,7 +261,7 @@ class HomeListScreen extends StatelessWidget {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              spa["address"],
+                                              p.address,
                                               style: const TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.black54,
@@ -253,7 +269,7 @@ class HomeListScreen extends StatelessWidget {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              spa["category"],
+                                              p.category,
                                               style: const TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.black54,
@@ -262,23 +278,28 @@ class HomeListScreen extends StatelessWidget {
                                             const SizedBox(height: 6),
                                             Row(
                                               children: [
-                                                const Icon(Icons.star,
-                                                    color: Colors.orange,
-                                                    size: 16),
+                                                const Icon(
+                                                  Icons.star,
+                                                  color: Colors.orange,
+                                                  size: 16,
+                                                ),
                                                 const SizedBox(width: 4),
                                                 Text(
-                                                  "${spa["rating"]}",
+                                                  "${p.rating}",
                                                   style: const TextStyle(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
                                                 const SizedBox(width: 16),
-                                                const Icon(Icons.location_on,
-                                                    color: Colors.grey, size: 16),
+                                                const Icon(
+                                                  Icons.location_on,
+                                                  color: Colors.grey,
+                                                  size: 16,
+                                                ),
                                                 const SizedBox(width: 4),
                                                 Text(
-                                                  spa["distance"],
+                                                  p.distance,
                                                   style: const TextStyle(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w500,
@@ -291,12 +312,13 @@ class HomeListScreen extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                
-                                  if (spa["offer"] != "")
+
+                                  // Offer
+                                  if (p.offer.isNotEmpty)
                                     Padding(
                                       padding: const EdgeInsets.only(top: 8),
                                       child: Text(
-                                        spa["offer"],
+                                        p.offer,
                                         style: const TextStyle(
                                           fontSize: 12,
                                           color: Colors.green,
@@ -311,6 +333,12 @@ class HomeListScreen extends StatelessWidget {
                         },
                       );
                     },
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(color: Colors.brown),
+                    ),
+                    error: (err, s) => Center(
+                      child: Text('Failed to load: $err'),
+                    ),
                   ),
                 ),
               ),

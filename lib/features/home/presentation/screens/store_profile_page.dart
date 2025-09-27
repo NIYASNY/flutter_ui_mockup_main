@@ -264,6 +264,24 @@ class StoreProfilePage extends StatelessWidget {
                                         "type": "Home visit",
                                         "added": false
                                       },
+                                      {
+                                        "title": "Deep Tissue Massage",
+                                        "desc":
+                                            "Loose muscle relaxation and stress relief with long, flowing strokes and gentle kneading tech.",
+                                        "price": "₹6,200",
+                                        "time": "60 Mins",
+                                        "type": "Walk-in",
+                                        "added": false
+                                      },
+                                      {
+                                        "title": "Deep Tissue Massage",
+                                        "desc":
+                                            "Loose muscle relaxation and stress relief with long, flowing strokes and gentle kneading tech.",
+                                        "price": "₹6,200",
+                                        "time": "60 Mins",
+                                        "type": "Walk-in",
+                                        "added": false
+                                      },
                                     ],
                                   ),
                                   ServiceSection(

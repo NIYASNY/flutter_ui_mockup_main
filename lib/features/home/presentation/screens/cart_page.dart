@@ -81,6 +81,20 @@ class CartPage extends StatelessWidget {
                 time: "60 Mins",
                 onRemove: () {},
               ),
+               WidgetHelper.buildServiceItem(
+                title: "Deep Tissue Massage",
+                subtitle: "For Male",
+                price: "₹6,200",
+                time: "60 Mins",
+                onRemove: () {},
+              ),
+               WidgetHelper.buildServiceItem(
+                title: "Deep Tissue Massage",
+                subtitle: "For Male",
+                price: "₹6,200",
+                time: "60 Mins",
+                onRemove: () {},
+              ),
 
               const SizedBox(height: 20),
 

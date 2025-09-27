@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'features/home/presentation/bloc/favourite/favourite_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/routes/app_pages.dart';
 
 void main() {
   runApp(
-    BlocProvider(
-      create: (_) => FavoriteBloc(),
-      child: const MyApp(),
+    const ProviderScope(
+      child: MyApp(),
     ),
   );
 }
@@ -19,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Spa Booking',
+      title: 'Shopping Cart',
       routerConfig: AppRouter.router,
     );
   }
